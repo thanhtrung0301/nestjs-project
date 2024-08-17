@@ -15,6 +15,8 @@ export class UsersController {
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(30) // override TTL to 30 seconds
   @Get('')
+  @Roles(USER_ROLE.ADMIN)
+	@UseGuards(RolesGuard)
   async getAll() {
     return this.users_service.getAll()
   }
