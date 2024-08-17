@@ -8,6 +8,7 @@ import { RolesModule } from '@modules/roles/roles.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './config/configuration';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -25,6 +26,15 @@ import configuration from './config/configuration';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (config) => ({ uri: config.get('database.uri') }),
+      inject: [ConfigService],
+    }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      imports: [ConfigModule],
+      useFactory: async (config) => ({
+        url: config.get('cache.redisurl'),
+        ttl: 3000,
+      }),
       inject: [ConfigService],
     }),
     UsersModule,
