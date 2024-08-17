@@ -70,7 +70,7 @@ export class AuthService {
       // Tao JWT
       const accessToken = this.jwt_service.sign(
         { _id: user._id, role: user.role.name },
-        { expiresIn: '1h' },
+        { expiresIn: '48h' },
       );
 
       return {
