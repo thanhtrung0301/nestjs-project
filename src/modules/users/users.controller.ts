@@ -3,6 +3,9 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AuthGuard } from '@modules/auth/guards/auth.guard';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
+import { Roles } from 'src/decoratos/roles.decoratos';
+import { RolesGuard } from '@modules/auth/guards/role.guard';
+import { USER_ROLE } from 'src/entities/role.entity';
 
 @UseGuards(AuthGuard)
 @Controller('user')
@@ -29,6 +32,8 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @Roles(USER_ROLE.ADMIN)
+	@UseGuards(RolesGuard)
   async deleteOne(@Param() params) {
     return this.users_service.deleteOne(params?.id)
   }

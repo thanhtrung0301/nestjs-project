@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { User } from '../../entities/user.entity';
 import { UsersRepositoryInterface } from './interfaces/users.interface';
 import { BaseServiceAbstract } from '@modules/services/base/base.abstract.service';
@@ -36,7 +36,14 @@ export class UsersService extends BaseServiceAbstract<User> {
   }
 
   async getProfile(user_id: string): Promise<User> {
-    const user = this.users_repository.findOneById(user_id);
+    const user = this.users_repository.findOneById(
+      user_id,
+      {
+        path: 'role',
+        select: 'name -_id',
+      },
+      'full_name email role',
+    );
     return user;
   }
 
@@ -49,11 +56,23 @@ export class UsersService extends BaseServiceAbstract<User> {
   }
 
   async deleteOne(user_id: string) {
-    return await this.users_repository.permanentlyDelete(user_id);
+    await this.users_repository.permanentlyDelete(user_id);
+
+    return {
+      status: HttpStatus.OK,
+      message: 'Deleted successfully !',
+    };
   }
 
   async getAll(): Promise<FindAllResponse<User>> {
-    const users = this.users_repository.findAll({});
+    const users = this.users_repository.findAll(
+      {},
+      {},
+      {
+        path: 'role',
+        select: 'name -_id',
+      },
+    );
     return users;
   }
 }

@@ -47,12 +47,15 @@ export class AuthService {
 
   async login(login_dto: LoginDto) {
     try {
-      this.logger.verbose(login_dto)
+      this.logger.verbose(login_dto);
       const { email, password } = login_dto;
 
       // Kiem tra tai khoan co ton tai khong
-      const user = await this.users_service.findOneByCondition({ email });
-      this.logger.verbose(user)
+      const user = await this.users_service.findOneByCondition(
+        { email },
+        { path: 'role', select: 'name -_id' },
+      );
+      this.logger.verbose(user);
 
       if (!user) {
         throw new UnauthorizedException('Wrong credential');
@@ -66,12 +69,12 @@ export class AuthService {
 
       // Tao JWT
       const accessToken = this.jwt_service.sign(
-        { _id: user._id, role: user.role },
+        { _id: user._id, role: user.role.name },
         { expiresIn: '1h' },
       );
 
       return {
-        status: HttpStatus.CREATED,
+        status: HttpStatus.OK,
         token: accessToken,
         message: 'Login successfully !',
       };

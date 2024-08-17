@@ -1,3 +1,4 @@
+import { FilterQuery, QueryOptions, PopulateOptions } from 'mongoose';
 import { BaseEntity } from '@modules/shared/base/base.entity';
 import { FindAllResponse } from 'src/types/common.type';
 import { BaseServiceInterface } from './base.interface.service';
@@ -13,16 +14,23 @@ export abstract class BaseServiceAbstract<T extends BaseEntity>
   }
 
   async findAll(
-    filter?: object,
-    options?: object,
+    filter?: FilterQuery<T>,
+    options?: QueryOptions<T>,
+    populateOptions?: PopulateOptions | PopulateOptions[],
   ): Promise<FindAllResponse<T>> {
-    return await this.repository.findAll(filter, options);
+    return await this.repository.findAll(filter, options, populateOptions);
   }
-  async findOne(id: string) {
-    return await this.repository.findOneById(id);
+
+  async findOne(id: string, populateOptions?: PopulateOptions | PopulateOptions[]) {
+    return await this.repository.findOneById(id, populateOptions);
   }
-  async findOneByCondition(condition: object, projection?: string) {
-    return await this.repository.findOneByCondition(condition, projection);
+
+  async findOneByCondition(
+    condition: FilterQuery<T>, 
+    populateOptions?: PopulateOptions | PopulateOptions[], 
+    projection?: string
+  ) {
+    return await this.repository.findOneByCondition(condition, populateOptions, projection);
   }
 
   async update(id: string, update_dto: Partial<T>) {
