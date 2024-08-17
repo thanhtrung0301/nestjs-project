@@ -2,6 +2,7 @@ import { BaseEntity } from '@modules/shared/base/base.entity';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Role } from './role.entity';
+import { Transform } from 'class-transformer';
 // import { UserRole } from '@modules/user-roles/entities/user-role.entity';
 
 export type UserDocument = HydratedDocument<User>;
@@ -25,7 +26,6 @@ export class User extends BaseEntity {
 
   @Prop({
     required: true,
-   
   })
   password: string;
 
@@ -33,8 +33,8 @@ export class User extends BaseEntity {
     type: mongoose.Schema.Types.ObjectId,
     ref: Role.name,
   })
+  @Transform((value) => value.obj.role?.name, { toClassOnly: true })
   role: Role;
-
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

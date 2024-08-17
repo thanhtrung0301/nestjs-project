@@ -4,7 +4,7 @@ import { UsersRepositoryInterface } from './interfaces/users.interface';
 import { BaseServiceAbstract } from '@modules/services/base/base.abstract.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { RolesService } from '@modules/roles/roles.service';
-import { USER_ROLE } from 'src/entities/role.entity';
+import { Role, USER_ROLE } from 'src/entities/role.entity';
 import { FindAllResponse } from 'src/types/common.type';
 import { RegisterDto } from '@modules/auth/dto/register.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -36,14 +36,10 @@ export class UsersService extends BaseServiceAbstract<User> {
   }
 
   async getProfile(user_id: string): Promise<User> {
-    const user = this.users_repository.findOneById(
-      user_id,
-      {
-        path: 'role',
-        select: 'name -_id',
-      },
-      'full_name email role',
-    );
+    const user = this.users_repository.findOneById(user_id, {
+      path: 'role',
+      transform: (role: Role) => role?.name,
+    });
     return user;
   }
 
@@ -70,7 +66,7 @@ export class UsersService extends BaseServiceAbstract<User> {
       {},
       {
         path: 'role',
-        select: 'name -_id',
+        transform: (role: Role) => role?.name,
       },
     );
     return users;
