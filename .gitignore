@@ -3,6 +3,14 @@
 /node_modules
 /build
 
+/microservice/producer/dist
+/microservice/producer/node_modules
+/microservice/producer/build
+
+/microservice/consumer/dist
+/microservice/consumer/node_modules
+/microservice/consumer/build
+
 # Logs
 logs
 *.log
