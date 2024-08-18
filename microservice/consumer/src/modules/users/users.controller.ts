@@ -20,11 +20,11 @@ import { MessagePattern } from '@nestjs/microservices';
 import { FilterQuery, PopulateOption, PopulateOptions } from 'mongoose';
 import { User } from 'src/entities/user.entity';
 
-@UseGuards(AuthGuard)
 @Controller('user')
 export class UsersController {
   constructor(private readonly users_service: UsersService) {}
 
+  @UseGuards(AuthGuard)
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(30) // override TTL to 30 seconds
   @Get('')
@@ -34,6 +34,7 @@ export class UsersController {
     return this.users_service.getAll();
   }
 
+  @UseGuards(AuthGuard)
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(30) // override TTL to 30 seconds
   @Get('profile')
@@ -41,11 +42,13 @@ export class UsersController {
     return this.users_service.getProfile(req.user);
   }
 
+  @UseGuards(AuthGuard)
   @Patch('profile')
   async updateProfile(@Request() req, @Body() body) {
     return this.users_service.updateProfile(req?.user?._id, body);
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
   @Roles(USER_ROLE.ADMIN)
   @UseGuards(RolesGuard)
@@ -61,7 +64,7 @@ export class UsersController {
     return this.users_service.findOneByCondition(condition, populateOptions);
   }
 
-  @MessagePattern({ cmd: 'get_one' })
+  @MessagePattern({ cmd: 'create_one' })
   async createOne(create_dto: CreateUserDto) {
     return this.users_service.create(create_dto);
   }
