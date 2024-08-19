@@ -16,7 +16,7 @@ import { Roles } from "src/decoratos/roles.decoratos";
 import { USER_ROLE } from "src/entities/role.entity";
 import { RolesGuard } from "src/guards/role.guard";
 import { AuthGuard } from "src/guards/auth.guard";
-import { MessagePattern } from "@nestjs/microservices";
+import { Ctx, MessagePattern, Payload, RmqContext } from "@nestjs/microservices";
 import { FilterQuery, PopulateOption, PopulateOptions } from "mongoose";
 import { User } from "src/entities/user.entity";
 
@@ -33,26 +33,27 @@ export class UsersController {
     return this.users_service.getAll();
   }
 
+  @MessagePattern({ cmd: "get_profile" })
   @UseGuards(AuthGuard)
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(30) // override TTL to 30 seconds
-  @Get("profile")
-  async getProfile(@Request() req) {
-    return this.users_service.getProfile(req.user);
+  async getProfile(@Payload() data) {
+    return this.users_service.getProfile(data.user);
   }
 
+  @MessagePattern({ cmd: "update_profile" })
   @UseGuards(AuthGuard)
   @Patch("profile")
-  async updateProfile(@Request() req, @Body() body) {
-    return this.users_service.updateProfile(req?.user?._id, body);
+  async updateProfile(@Payload() data) {
+    return this.users_service.updateProfile(data?.user?._id, data?.body);
   }
 
-  @UseGuards(AuthGuard)
+  @MessagePattern({ cmd: "delete_user" })
+  @UseGuards(AuthGuard, RolesGuard)
   @Delete(":id")
   @Roles(USER_ROLE.ADMIN)
-  @UseGuards(RolesGuard)
-  async deleteOne(@Param() params) {
-    return this.users_service.deleteOne(params?.id);
+  async deleteOne(@Payload() data) {
+    return this.users_service.deleteOne(data?.params?.id);
   }
 
   @MessagePattern({ cmd: "get_one" })

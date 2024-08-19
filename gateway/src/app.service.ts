@@ -19,11 +19,19 @@ export class AppService {
     return this.auth_service.send({ cmd: 'register' }, registerDto);
   }
 
-  async getUserProfile(userId: string) {
-    return this.user_service.send('get_profile', { userId });
+  async getUserProfile(token: string) {
+    return this.user_service.send({ cmd: 'get_profile' }, { token });
   }
 
   async getAllUser(token: string) {
     return this.user_service.send({ cmd: 'get_all' }, { token });
+  }
+
+  async updateUserProfile(token: string, body) {
+    return this.user_service.send({ cmd: 'update_profile' }, { token, body });
+  }
+
+  async deleteOneUser(token: string, params) {
+    return this.user_service.send({ cmd: 'delete_user' }, { token, params });
   }
 }
