@@ -26,7 +26,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         transport: Transport.RMQ,
         options: {
           urls: ['amqp://localhost:5672'],
-          queue: 'users_queue',
+          queue: 'user_queue',
         },
       },
     ]),

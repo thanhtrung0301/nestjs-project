@@ -10,6 +10,7 @@ import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -19,18 +20,27 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request: Request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
+    // const request: Request = context.switchToHttp().getRequest();
+    // const token = this.extractTokenFromHeader(request);
+    const ctx = context.switchToRpc().getContext();
+    const data = context.switchToRpc().getData();
+
+    const token = data.token;
 
     if (!token) {
-      throw new UnauthorizedException('Invalid Token');
+      throw new RpcException(new UnauthorizedException('Forbidden'));
     }
+    Logger.log(token);
 
     try {
       const payload = await this.jwt_service.verifyAsync(token, {
         secret: this.config_service.get<string>('jwt.secret'),
       });
-      request['user'] = payload;
+
+    Logger.log(payload);
+
+
+      data['user'] = payload;
     } catch (err) {
       Logger.error(err);
       throw new UnauthorizedException('Token Expired');

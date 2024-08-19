@@ -3,13 +3,17 @@
 /node_modules
 /build
 
-/producer/dist
-/producer/node_modules
-/producer/build
+/user/dist
+/user/node_modules
+/user/build
 
-/consumer/dist
-/consumer/node_modules
-/consumer/build
+/gateway/dist
+/gateway/node_modules
+/gateway/build
+
+/auth/dist
+/auth/node_modules
+/auth/build
 
 # Logs
 logs
