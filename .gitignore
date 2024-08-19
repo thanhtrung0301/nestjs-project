@@ -3,13 +3,13 @@
 /node_modules
 /build
 
-/microservice/producer/dist
-/microservice/producer/node_modules
-/microservice/producer/build
+/producer/dist
+/producer/node_modules
+/producer/build
 
-/microservice/consumer/dist
-/microservice/consumer/node_modules
-/microservice/consumer/build
+/consumer/dist
+/consumer/node_modules
+/consumer/build
 
 # Logs
 logs
