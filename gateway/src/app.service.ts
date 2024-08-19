@@ -10,28 +10,27 @@ export class AppService {
     @Inject('USER_SERVICE') private readonly user_service: ClientProxy,
   ) {}
 
-  async login(loginDto: LoginDto) {
-    console.log('🚀 ~ AppService ~ login ~ loginDto:', loginDto);
-    return this.auth_service.send({ cmd: 'login' }, loginDto);
+  login(loginDto: LoginDto) {
+    this.auth_service.send({ cmd: 'login' }, loginDto);
   }
 
-  async register(registerDto: RegisterDto) {
-    return this.auth_service.send({ cmd: 'register' }, registerDto);
+  register(registerDto: RegisterDto) {
+    this.auth_service.send({ cmd: 'register' }, registerDto);
   }
 
-  async getUserProfile(token: string) {
-    return this.user_service.send({ cmd: 'get_profile' }, { token });
+  getUserProfile(token: string) {
+    this.user_service.send({ cmd: 'get_profile' }, { token });
   }
 
-  async getAllUser(token: string) {
-    return this.user_service.send({ cmd: 'get_all' }, { token });
+  getAllUser(token: string) {
+    this.user_service.send({ cmd: 'get_all' }, { token });
   }
 
-  async updateUserProfile(token: string, body) {
-    return this.user_service.send({ cmd: 'update_profile' }, { token, body });
+  updateUserProfile(token: string, body) {
+    this.user_service.send({ cmd: 'update_profile' }, { token, body });
   }
 
-  async deleteOneUser(token: string, params) {
-    return this.user_service.send({ cmd: 'delete_user' }, { token, params });
+  deleteOneUser(token: string, params) {
+    this.user_service.send({ cmd: 'delete_user' }, { token, params });
   }
 }

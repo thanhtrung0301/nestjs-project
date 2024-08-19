@@ -66,6 +66,6 @@ export class UsersController {
 
   @MessagePattern({ cmd: "create_one" })
   async createOne(create_dto: CreateUserDto) {
-    return this.users_service.create(create_dto);
+    return this.users_service.createUser(create_dto);
   }
 }

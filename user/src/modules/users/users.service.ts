@@ -1,24 +1,26 @@
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { User } from '../../entities/user.entity';
-import { UsersRepositoryInterface } from './interfaces/users.interface';
-import { BaseServiceAbstract } from '@modules/services/base/base.abstract.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { RolesService } from '@modules/roles/roles.service';
-import { Role, USER_ROLE } from 'src/entities/role.entity';
-import { FindAllResponse } from 'src/types/common.type';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { HttpStatus, Inject, Injectable } from "@nestjs/common";
+import { User } from "../../entities/user.entity";
+import { UsersRepositoryInterface } from "./interfaces/users.interface";
+import { BaseServiceAbstract } from "@modules/services/base/base.abstract.service";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { RolesService } from "@modules/roles/roles.service";
+import { Role, USER_ROLE } from "src/entities/role.entity";
+import { FindAllResponse } from "src/types/common.type";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { ClientProxy } from "@nestjs/microservices";
 
 @Injectable()
 export class UsersService extends BaseServiceAbstract<User> {
   constructor(
-    @Inject('UsersRepositoryInterface')
+    @Inject("UsersRepositoryInterface")
     private readonly users_repository: UsersRepositoryInterface,
     private readonly roles_service: RolesService,
+    @Inject("GATEWAY_SERVICE") private readonly gateway_service: ClientProxy
   ) {
     super(users_repository);
   }
 
-  async create(create_dto: CreateUserDto): Promise<User> {
+  async createUser(create_dto: CreateUserDto) {
     let user_role = await this.roles_service.findOneByCondition({
       name: create_dto.role,
     });
@@ -31,15 +33,16 @@ export class UsersService extends BaseServiceAbstract<User> {
       ...create_dto,
       role: user_role._id,
     });
-    return user;
+
+    this.gateway_service.emit({ cmd: "response" }, user);
   }
 
-  async getProfile(user_id: string): Promise<User> {
+  async getProfile(user_id: string) {
     const user = this.users_repository.findOneById(user_id, {
-      path: 'role',
+      path: "role",
       transform: (role: Role) => role?.name,
     });
-    return user;
+    this.gateway_service.emit({ cmd: "response" }, user);
   }
 
   async updateProfile(user_id: string, update_dto: UpdateUserDto) {
@@ -47,27 +50,31 @@ export class UsersService extends BaseServiceAbstract<User> {
     delete toUpdate.password;
 
     let updated = Object.assign(toUpdate, update_dto);
-    return await this.users_repository.update(user_id, updated);
+    updated = await this.users_repository.update(user_id, updated);
+
+    this.gateway_service.emit({ cmd: "response" }, updated);
   }
 
   async deleteOne(user_id: string) {
     await this.users_repository.permanentlyDelete(user_id);
-
-    return {
-      status: HttpStatus.OK,
-      message: 'Deleted successfully !',
-    };
+    this.gateway_service.emit(
+      { cmd: "response" },
+      {
+        status: HttpStatus.OK,
+        message: "Deleted successfully !",
+      }
+    );
   }
 
-  async getAll(): Promise<FindAllResponse<User>> {
+  async getAll() {
     const users = this.users_repository.findAll(
       {},
       {},
       {
-        path: 'role',
+        path: "role",
         transform: (role: Role) => role?.name,
-      },
+      }
     );
-    return users;
+    this.gateway_service.emit({ cmd: "response" }, users);
   }
 }

@@ -29,6 +29,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           queue: 'user_queue',
         },
       },
+      {
+        name: 'GATEWAY_SERVICE',
+        transport: Transport.RMQ,
+        options: {
+          urls: ['amqp://localhost:5672'],
+          queue: 'gateway_queue',
+        },
+      },
     ]),
   ],
   controllers: [AuthController],

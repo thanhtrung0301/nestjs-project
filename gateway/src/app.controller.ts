@@ -13,6 +13,7 @@ import {
 import { AppService } from './app.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @Controller()
 export class AppController {
@@ -54,5 +55,11 @@ export class AppController {
   async deleteOne(@Headers('authorization') authHeader: string, @Param() params) {
     const token = authHeader?.split(' ')[1];
     return this.appService.deleteOneUser(token, params?.id);
+  }
+
+  @MessagePattern({ cmd: 'response' })
+  async responseClient(@Payload() data) {
+    console.log('Received response from microservice:', data);
+    return data;
   }
 }

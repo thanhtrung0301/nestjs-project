@@ -21,6 +21,7 @@ export class AuthService {
     @Inject("USER_SERVICE")
     private readonly users_service: ClientProxy,
 
+    @Inject("GATEWAY_SERVICE") private readonly gateway_service: ClientProxy,
     private readonly jwt_service: JwtService
   ) {}
 
@@ -55,7 +56,10 @@ export class AuthService {
         )
       );
 
-      return { status: HttpStatus.CREATED, message: "Register successfully !" };
+      this.gateway_service.emit(
+        { cmd: "response" },
+        { status: HttpStatus.CREATED, message: "Register successfully !" }
+      );
     } catch (error) {
       throw error;
     }
@@ -98,11 +102,14 @@ export class AuthService {
         { expiresIn: "48h" }
       );
 
-      return {
-        status: HttpStatus.OK,
-        token: accessToken,
-        message: "Login successfully !",
-      };
+      this.gateway_service.emit(
+        { cmd: "response" },
+        {
+          status: HttpStatus.OK,
+          token: accessToken,
+          message: "Login successfully !",
+        }
+      );
     } catch (error) {
       throw error;
     }
