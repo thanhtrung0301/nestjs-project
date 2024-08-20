@@ -26,18 +26,26 @@ export class AuthService {
   ) {}
 
   async register(register_dto: RegisterDto) {
+    console.log("🚀 ~ AuthService ~ register ~ register_dto:", register_dto);
     try {
       const existed_user = await firstValueFrom(
         this.users_service.send(
           { cmd: "get_one" },
           {
-            email: register_dto.email,
+            conditions: { email: register_dto.email },
+            populateOptions: { path: "role", select: "name -_id" },
           }
         )
       );
+      console.log("🚀 ~ AuthService ~ register ~ existed_user:", existed_user);
       if (existed_user) {
-        throw new RpcException(
-          new ConflictException("Email already existed!!")
+        return this.gateway_service.emit(
+          { cmd: "response" },
+          {
+            status: HttpStatus.CONFLICT,
+            message: "Email already existed!!",
+            reqid: register_dto.reqid,
+          }
         );
       }
 
@@ -46,19 +54,21 @@ export class AuthService {
         this.SALT_ROUND
       );
 
-      const user = await await firstValueFrom(
-        this.users_service.send(
-          { cmd: "create_one" },
-          {
-            ...register_dto,
-            password: hashed_password,
-          }
-        )
+      this.users_service.emit(
+        { cmd: "create_one" },
+        {
+          ...register_dto,
+          password: hashed_password,
+        }
       );
 
       this.gateway_service.emit(
         { cmd: "response" },
-        { status: HttpStatus.CREATED, message: "Register successfully !" }
+        {
+          status: HttpStatus.CREATED,
+          message: "Register successfully !",
+          reqid: register_dto.reqid,
+        }
       );
     } catch (error) {
       throw error;
@@ -68,7 +78,7 @@ export class AuthService {
   async login(login_dto: LoginDto) {
     try {
       this.logger.verbose(login_dto);
-      const { email, password } = login_dto;
+      const { email, password, reqid } = login_dto;
 
       // Kiem tra tai khoan co ton tai khong
       const user = await firstValueFrom(
@@ -82,13 +92,27 @@ export class AuthService {
       );
 
       if (!user) {
-        throw new RpcException(new UnauthorizedException("Wrong credential"));
+        return this.gateway_service.emit(
+          { cmd: "response" },
+          {
+            status: HttpStatus.UNAUTHORIZED,
+            message: "Wrong credential",
+            reqid,
+          }
+        );
       }
 
       // So sanh hash voi password duoc nhap
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-        throw new RpcException(new UnauthorizedException("Wrong credential"));
+        return this.gateway_service.emit(
+          { cmd: "response" },
+          {
+            status: HttpStatus.UNAUTHORIZED,
+            message: "Wrong credential",
+            reqid,
+          }
+        );
       }
 
       // Tao JWT
@@ -96,11 +120,12 @@ export class AuthService {
         { _id: user._id, role: user.role.name },
         { expiresIn: "48h" }
       );
-      console.log("🚀 ~ AuthService ~ login ~ accessToken:", accessToken)
+      console.log("🚀 ~ AuthService ~ login ~ accessToken:", accessToken);
 
       this.gateway_service.emit(
         { cmd: "response" },
         {
+          reqid,
           status: HttpStatus.OK,
           token: accessToken,
           message: "Login successfully !",

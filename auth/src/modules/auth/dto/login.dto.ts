@@ -1,6 +1,7 @@
 import {
 	IsEmail,
 	IsNotEmpty,
+	IsOptional,
 	MaxLength,
 } from 'class-validator';
 
@@ -13,4 +14,7 @@ export class LoginDto {
 	@IsNotEmpty()
 	// @IsStrongPassword() // Password phải đủ độ mạnh
 	password: string;
+
+	@IsOptional()
+	reqid: number;
 }

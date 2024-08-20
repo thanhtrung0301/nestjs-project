@@ -29,4 +29,8 @@ export class RegisterDto {
   @IsOptional()
   @IsEnum(USER_ROLE)
   role: string;
+
+
+	@IsOptional()
+	reqid: number;
 }

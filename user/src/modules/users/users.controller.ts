@@ -59,6 +59,7 @@ export class UsersController {
   @MessagePattern({ cmd: "get_one" })
   async getOne(data: { conditions: object; populateOptions?: PopulateOptions | PopulateOptions[] }) {
     const { conditions, populateOptions } = data;
+    console.log("🚀 ~ UsersController ~ getOne ~ conditions:", conditions)
 
     const condition: FilterQuery<User> = conditions;
     return this.users_service.findOneByCondition(condition, populateOptions);
