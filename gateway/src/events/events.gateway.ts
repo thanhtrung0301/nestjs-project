@@ -31,10 +31,10 @@ export class EventsGateway
         return this.appService.getUserProfile(token);
       case 'get_all_user':
         return this.appService.getAllUser(token);
-      case 'update_profile':
-        return this.appService.updateUserProfile(token, body);
-      case 'delete_user':
-        return this.appService.deleteOneUser(token, body?._id);
+      // case 'update_profile':
+      //   return this.appService.updateUserProfile(token, body);
+      // case 'delete_user':
+      //   return this.appService.deleteOneUser(token, body?._id);
     }
   }
 
