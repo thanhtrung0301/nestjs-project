@@ -18,12 +18,23 @@ export class EventsGateway
   constructor(private appService: AppService) {}
   @WebSocketServer() server: Server;
 
-  @UseGuards(TokenGuard)
+  // @UseGuards(TokenGuard)
   @SubscribeMessage('message')
   async handleMessage(client: any, payload: any) {
-    switch (payload?.cmdtype) {
+    const { token, cmdtype, ...body } = payload;
+    switch (cmdtype) {
       case 'login':
-        this.appService.login(payload);
+        return this.appService.login(body);
+      case 'register':
+        return this.appService.register(body);
+      case 'get_profile':
+        return this.appService.getUserProfile(token);
+      case 'get_all_user':
+        return this.appService.getAllUser(token);
+      case 'update_profile':
+        return this.appService.updateUserProfile(token, body);
+      case 'delete_user':
+        return this.appService.deleteOneUser(token, body?._id);
     }
   }
 
