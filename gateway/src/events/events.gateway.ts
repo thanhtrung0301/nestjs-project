@@ -6,47 +6,64 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { Server, WebSocket } from 'ws'; // Import WebSocket from 'ws'
 import { AppService } from 'src/app.service';
-import { Socket, Server } from 'socket.io';
-import { TokenGuard } from 'src/guards/token.guard';
-import { UseGuards } from '@nestjs/common';
 
 @WebSocketGateway()
 export class EventsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   constructor(private appService: AppService) {}
+
   @WebSocketServer() server: Server;
 
-  // @UseGuards(TokenGuard)
   @SubscribeMessage('message')
-  async handleMessage(client: any, payload: any) {
-    const { token, cmdtype, ...body } = payload;
+  async handleMessage(client: WebSocket, payload: string) { // Change client to WebSocket and payload to string
+    const parsedPayload = JSON.parse(payload); // Parse the incoming message
+    const { token, cmdtype, ...body } = parsedPayload;
+    
     switch (cmdtype) {
       case 'login':
-        return this.appService.login(body);
+        client.send(JSON.stringify(await this.appService.login(body)));
+        break;
       case 'register':
-        return this.appService.register(body);
+        client.send(JSON.stringify(await this.appService.register(body)));
+        break;
       case 'get_profile':
-        return this.appService.getUserProfile(token);
+        client.send(JSON.stringify(await this.appService.getUserProfile(token)));
+        break;
       case 'get_all_user':
-        return this.appService.getAllUser(token);
-      // case 'update_profile':
-      //   return this.appService.updateUserProfile(token, body);
-      // case 'delete_user':
-      //   return this.appService.deleteOneUser(token, body?._id);
+        client.send(JSON.stringify(await this.appService.getAllUser(token)));
+        break;
+      case 'update_profile':
+        client.send(JSON.stringify(await this.appService.updateUserProfile({
+          token,
+          body,
+          reqid: 0,
+        })));
+        break;
+      case 'delete_user':
+        client.send(JSON.stringify(await this.appService.deleteOneUser({
+          token,
+          params: body?._id,
+          reqid: 0,
+        })));
+        break;
     }
   }
 
   afterInit(server: Server) {
-    console.log(server);
+    console.log('WebSocket server initialized');
   }
 
-  handleDisconnect(client: Socket) {
-    console.log(`Disconnected: ${client.id}`);
+  handleDisconnect(client: WebSocket) { // Change client to WebSocket
+    console.log(`Client disconnected`);
   }
 
-  handleConnection(client: Socket, ...args: any[]) {
-    console.log(`Connected ${client.id}`);
+  handleConnection(client: WebSocket, ...args: any[]) { // Change client to WebSocket
+    console.log('Client connected');
+    
+    // Optionally listen for messages directly if not using @SubscribeMessage
+    client.on('message', (message) => this.handleMessage(client, message.toString()));
   }
 }
