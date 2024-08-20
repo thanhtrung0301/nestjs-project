@@ -18,10 +18,15 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import { TokenGuard } from './guards/token.guard';
+import { WebSocket } from 'ws'; // Import WebSocket
+import { EventsGateway } from './events/events.gateway';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private eventsGateway: EventsGateway,
+  ) {}
 
   connection: any = {};
 
@@ -84,20 +89,21 @@ export class AppController {
   @EventPattern({ cmd: 'response' })
   async responseClient(@Payload() data) {
     console.log('🚀 ~ AppController ~ responseClient ~ data:', data);
-    const { reqid, ...responseData } = data;
+    const { client, reqid, ...responseData } = data;
 
-    // Retrieve the response object from the connection map
-    const res = this.connection[reqid];
-
-    if (res) {
-      // Send the response back to the client
-      const statusCode: number = responseData?.status || 200;
-      res.status(statusCode).json(responseData);
-
-      // Clean up: remove the connection from the map
-      delete this.connection[reqid];
+    if (!reqid) {
+      this.eventsGateway.sendToClient(responseData);
     } else {
-      console.error(`No connection found for reqid: ${reqid}`);
+      const res = this.connection[reqid];
+
+      if (res) {
+        const statusCode: number = responseData?.status || 200;
+        res.status(statusCode).json(responseData);
+
+        delete this.connection[reqid];
+      } else {
+        console.error(`No connection found for reqid: ${reqid}`);
+      }
     }
   }
 }

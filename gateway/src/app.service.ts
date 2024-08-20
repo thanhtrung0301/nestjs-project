@@ -26,11 +26,11 @@ export class AppService {
     this.user_service.emit({ cmd: 'get_all' }, data);
   }
 
-  updateUserProfile(data: { token: string; reqid: number; body: any }) {
+  updateUserProfile(data: { token: string; reqid?: number; body: any }) {
     this.user_service.emit({ cmd: 'update_profile' }, data);
   }
 
-  deleteOneUser(data: { token: string; reqid: number; params: any }) {
+  deleteOneUser(data: { token: string; reqid?: number; params: any }) {
     this.user_service.emit({ cmd: 'delete_user' }, data);
   }
 }

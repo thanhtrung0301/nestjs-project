@@ -16,38 +16,40 @@ export class EventsGateway
   constructor(private appService: AppService) {}
 
   @WebSocketServer() server: Server;
+  private client;
 
   @SubscribeMessage('message')
-  async handleMessage(client: WebSocket, payload: string) { // Change client to WebSocket and payload to string
-    const parsedPayload = JSON.parse(payload); // Parse the incoming message
+  async handleMessage(client: WebSocket, payload: string) {
+    this.client = client;
+
+    const parsedPayload = JSON.parse(payload);
     const { token, cmdtype, ...body } = parsedPayload;
-    
+
     switch (cmdtype) {
       case 'login':
-        client.send(JSON.stringify(await this.appService.login(body)));
+        this.appService.login(body);
         break;
       case 'register':
-        client.send(JSON.stringify(await this.appService.register(body)));
+        this.appService.register(body);
         break;
       case 'get_profile':
-        client.send(JSON.stringify(await this.appService.getUserProfile(token)));
+        this.appService.getUserProfile({ token } as any);
         break;
       case 'get_all_user':
-        client.send(JSON.stringify(await this.appService.getAllUser(token)));
+        this.appService.getAllUser({ token } as any);
         break;
       case 'update_profile':
-        client.send(JSON.stringify(await this.appService.updateUserProfile({
+        this.appService.updateUserProfile({
           token,
           body,
-          reqid: 0,
-        })));
+        });
+
         break;
       case 'delete_user':
-        client.send(JSON.stringify(await this.appService.deleteOneUser({
+        this.appService.deleteOneUser({
           token,
           params: body?._id,
-          reqid: 0,
-        })));
+        });
         break;
     }
   }
@@ -56,14 +58,24 @@ export class EventsGateway
     console.log('WebSocket server initialized');
   }
 
-  handleDisconnect(client: WebSocket) { // Change client to WebSocket
+  handleDisconnect(client: WebSocket) {
+    // Change client to WebSocket
     console.log(`Client disconnected`);
   }
 
-  handleConnection(client: WebSocket, ...args: any[]) { // Change client to WebSocket
+  handleConnection(client: WebSocket, ...args: any[]) {
     console.log('Client connected');
-    
-    // Optionally listen for messages directly if not using @SubscribeMessage
-    client.on('message', (message) => this.handleMessage(client, message.toString()));
+
+    client.on('message', (message) =>
+      this.handleMessage(client, message.toString()),
+    );
+  }
+
+  sendToClient(message: any) {
+    if (this.client && this.client.readyState === WebSocket.OPEN) {
+      this.client.send(JSON.stringify(message));
+    } else {
+      console.error('Client not connected or readyState is not OPEN');
+    }
   }
 }
