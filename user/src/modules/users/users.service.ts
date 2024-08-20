@@ -49,23 +49,31 @@ export class UsersService extends BaseServiceAbstract<User> {
     );
   }
 
-  async updateProfile(user_id: string, update_dto: UpdateUserDto) {
+  async updateProfile(
+    user_id: string,
+    reqid: number,
+    update_dto: UpdateUserDto
+  ) {
     let toUpdate = await this.users_repository.findOneById(user_id);
     delete toUpdate.password;
 
     let updated = Object.assign(toUpdate, update_dto);
     updated = await this.users_repository.update(user_id, updated);
 
-    this.gateway_service.emit({ cmd: "response" }, updated);
+    this.gateway_service.emit(
+      { cmd: "response" },
+      { response: updated, reqid }
+    );
   }
 
-  async deleteOne(user_id: string) {
+  async deleteOne(user_id: string, reqid: number) {
     await this.users_repository.permanentlyDelete(user_id);
     this.gateway_service.emit(
       { cmd: "response" },
       {
         status: HttpStatus.OK,
         message: "Deleted successfully !",
+        reqid,
       }
     );
   }

@@ -50,7 +50,8 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @Patch("profile")
   async updateProfile(@Payload() data) {
-    return this.users_service.updateProfile(data?.user?._id, data?.body);
+    const { user, reqid, body } = data;
+    return this.users_service.updateProfile(user?._id, reqid, body);
   }
 
   @MessagePattern({ cmd: "delete_user" })
@@ -58,7 +59,8 @@ export class UsersController {
   @Delete(":id")
   @Roles(USER_ROLE.ADMIN)
   async deleteOne(@Payload() data) {
-    return this.users_service.deleteOne(data?.params?.id);
+    const { params, reqid } = data;
+    return this.users_service.deleteOne(params, reqid);
   }
 
   @MessagePattern({ cmd: "get_one" })
