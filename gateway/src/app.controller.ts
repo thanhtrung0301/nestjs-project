@@ -47,7 +47,7 @@ export class AppController {
     const reqid = Date.now();
     this.connection[reqid] = res;
 
-    this.appService.getAllUser(req.token);
+    this.appService.getAllUser({ token: req.token, reqid });
   }
 
   @UseGuards(TokenGuard)
@@ -56,7 +56,7 @@ export class AppController {
     const reqid = Date.now();
     this.connection[reqid] = res;
 
-    this.appService.getUserProfile(req.token);
+    this.appService.getUserProfile({ token: req.token, reqid });
   }
 
   @UseGuards(TokenGuard)
@@ -65,7 +65,7 @@ export class AppController {
     const reqid = Date.now();
     this.connection[reqid] = res;
 
-    return this.appService.updateUserProfile(req.token, body);
+    return this.appService.updateUserProfile({ token: req.token, reqid, body });
   }
 
   @UseGuards(TokenGuard)
@@ -74,7 +74,11 @@ export class AppController {
     const reqid = Date.now();
     this.connection[reqid] = res;
 
-    return this.appService.deleteOneUser(req.token, params?.id);
+    return this.appService.deleteOneUser({
+      token: req.token,
+      reqid,
+      params: params?.id,
+    });
   }
 
   @EventPattern({ cmd: 'response' })
@@ -87,7 +91,8 @@ export class AppController {
 
     if (res) {
       // Send the response back to the client
-      res.status(responseData?.status).json(responseData);
+      const statusCode: number = responseData?.status || 200;
+      res.status(statusCode).json(responseData);
 
       // Clean up: remove the connection from the map
       delete this.connection[reqid];

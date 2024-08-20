@@ -16,7 +16,12 @@ import { Roles } from "src/decoratos/roles.decoratos";
 import { USER_ROLE } from "src/entities/role.entity";
 import { RolesGuard } from "src/guards/role.guard";
 import { AuthGuard } from "src/guards/auth.guard";
-import { Ctx, MessagePattern, Payload, RmqContext } from "@nestjs/microservices";
+import {
+  Ctx,
+  MessagePattern,
+  Payload,
+  RmqContext,
+} from "@nestjs/microservices";
 import { FilterQuery, PopulateOption, PopulateOptions } from "mongoose";
 import { User } from "src/entities/user.entity";
 
@@ -29,8 +34,8 @@ export class UsersController {
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(30) // override TTL to 30 seconds
   @Roles(USER_ROLE.ADMIN)
-  async getAll() {
-    return this.users_service.getAll();
+  async getAll(@Payload() data) {
+    return this.users_service.getAll(data?.reqid);
   }
 
   @MessagePattern({ cmd: "get_profile" })
@@ -38,7 +43,7 @@ export class UsersController {
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(30) // override TTL to 30 seconds
   async getProfile(@Payload() data) {
-    return this.users_service.getProfile(data.user);
+    return this.users_service.getProfile(data);
   }
 
   @MessagePattern({ cmd: "update_profile" })
@@ -57,9 +62,11 @@ export class UsersController {
   }
 
   @MessagePattern({ cmd: "get_one" })
-  async getOne(data: { conditions: object; populateOptions?: PopulateOptions | PopulateOptions[] }) {
+  async getOne(data: {
+    conditions: object;
+    populateOptions?: PopulateOptions | PopulateOptions[];
+  }) {
     const { conditions, populateOptions } = data;
-    console.log("🚀 ~ UsersController ~ getOne ~ conditions:", conditions)
 
     const condition: FilterQuery<User> = conditions;
     return this.users_service.findOneByCondition(condition, populateOptions);

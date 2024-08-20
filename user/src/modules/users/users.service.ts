@@ -37,13 +37,16 @@ export class UsersService extends BaseServiceAbstract<User> {
     this.gateway_service.emit({ cmd: "response" }, user);
   }
 
-  async getProfile(user_id: string) {
-    const user = await this.users_repository.findOneById(user_id, {
+  async getProfile(data) {
+    const user = await this.users_repository.findOneById(data?.user?._id, {
       path: "role",
       transform: (role: Role) => role?.name,
     });
-    console.log("🚀 ~ UsersService ~ getProfile ~ user:", user)
-    this.gateway_service.emit({ cmd: "response" }, user);
+
+    this.gateway_service.emit(
+      { cmd: "response" },
+      { response: user, reqid: data?.reqid }
+    );
   }
 
   async updateProfile(user_id: string, update_dto: UpdateUserDto) {
@@ -67,7 +70,7 @@ export class UsersService extends BaseServiceAbstract<User> {
     );
   }
 
-  async getAll() {
+  async getAll(reqid: number) {
     const users = await this.users_repository.findAll(
       {},
       {},
@@ -76,6 +79,6 @@ export class UsersService extends BaseServiceAbstract<User> {
         transform: (role: Role) => role?.name,
       }
     );
-    this.gateway_service.emit({ cmd: "response" }, users);
+    this.gateway_service.emit({ cmd: "response" }, { response: users, reqid });
   }
 }
