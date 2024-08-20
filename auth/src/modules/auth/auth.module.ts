@@ -27,6 +27,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         options: {
           urls: ['amqp://localhost:5672'],
           queue: 'user_queue',
+          queueOptions: {
+            durable: false
+          },
         },
       },
       {
@@ -35,6 +38,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         options: {
           urls: ['amqp://localhost:5672'],
           queue: 'gateway_queue',
+          queueOptions: {
+            durable: false
+          },
         },
       },
     ]),

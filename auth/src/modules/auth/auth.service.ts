@@ -80,11 +80,6 @@ export class AuthService {
           }
         )
       );
-      // this.users_service.findOneByCondition(
-      //   { email },
-      //   { path: 'role', select: 'name -_id' },
-      // );
-      this.logger.verbose(user);
 
       if (!user) {
         throw new RpcException(new UnauthorizedException("Wrong credential"));
@@ -101,6 +96,7 @@ export class AuthService {
         { _id: user._id, role: user.role.name },
         { expiresIn: "48h" }
       );
+      console.log("🚀 ~ AuthService ~ login ~ accessToken:", accessToken)
 
       this.gateway_service.emit(
         { cmd: "response" },

@@ -15,6 +15,7 @@ export class AuthController {
 
   @MessagePattern({ cmd: 'login' })
 	async loginAccount(@Body() login_dto: LoginDto) {
+    console.log("🚀 ~ AuthController ~ loginAccount ~ login_dto:", login_dto)
     return await this.auth_service.login(login_dto)
 	}
 

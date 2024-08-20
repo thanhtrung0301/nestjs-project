@@ -9,11 +9,14 @@ import {
   Param,
   Patch,
   Post,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
+import { TokenGuard } from './guards/token.guard';
 
 @Controller()
 export class AppController {
@@ -29,35 +32,31 @@ export class AppController {
     return this.appService.register(registerDto);
   }
 
+  @UseGuards(TokenGuard)
   @Get('user')
-  getAll(@Headers('authorization') authHeader: string) {
-    const token = authHeader?.split(' ')[1];
-
-    return this.appService.getAllUser(token);
+  getAll(@Request() req) {
+    return this.appService.getAllUser(req.token);
   }
 
+  @UseGuards(TokenGuard)
   @Get('user/profile')
-  async getProfile(@Headers('authorization') authHeader: string) {
-    const token = authHeader?.split(' ')[1];
-
-    return this.appService.getUserProfile(token);
+  async getProfile(@Request() req) {
+    return this.appService.getUserProfile(req.token);
   }
 
+  @UseGuards(TokenGuard)
   @Patch('user/profile')
-  async updateProfile(@Headers('authorization') authHeader: string, @Body() body) {
-    const token = authHeader?.split(' ')[1];
-
-    return this.appService.updateUserProfile(token, body);
+  async updateProfile(@Request() req, @Body() body) {
+    return this.appService.updateUserProfile(req.token, body);
   }
 
-  
+  @UseGuards(TokenGuard)
   @Delete('user/:id')
-  async deleteOne(@Headers('authorization') authHeader: string, @Param() params) {
-    const token = authHeader?.split(' ')[1];
-    return this.appService.deleteOneUser(token, params?.id);
+  async deleteOne(@Request() req, @Param() params) {
+    return this.appService.deleteOneUser(req.token, params?.id);
   }
 
-  @MessagePattern({ cmd: 'response' })
+  @EventPattern({ cmd: 'response' })
   async responseClient(@Payload() data) {
     console.log('Received response from microservice:', data);
     return data;

@@ -1,7 +1,5 @@
-import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Request } from 'express';
-import { Observable } from 'rxjs';
 import { ROLES } from 'src/decoratos/roles.decoratos';
 
 @Injectable()
@@ -10,7 +8,7 @@ export class RolesGuard implements CanActivate {
 
   canActivate(
     context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  ): boolean | Promise<boolean> {
     const roles: string[] = this.refector.getAllAndOverride(ROLES, [
       context.getHandler(),
       context.getClass(),

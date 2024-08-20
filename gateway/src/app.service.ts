@@ -11,26 +11,26 @@ export class AppService {
   ) {}
 
   login(loginDto: LoginDto) {
-    this.auth_service.send({ cmd: 'login' }, loginDto);
+    return this.auth_service.send({ cmd: 'login' }, loginDto);
   }
 
   register(registerDto: RegisterDto) {
-    this.auth_service.send({ cmd: 'register' }, registerDto);
+    return this.auth_service.send({ cmd: 'register' }, registerDto);
   }
 
   getUserProfile(token: string) {
-    this.user_service.send({ cmd: 'get_profile' }, { token });
+    return this.user_service.send({ cmd: 'get_profile' }, { token });
   }
 
   getAllUser(token: string) {
-    this.user_service.send({ cmd: 'get_all' }, { token });
+    return this.user_service.send({ cmd: 'get_all' }, { token });
   }
 
   updateUserProfile(token: string, body) {
-    this.user_service.send({ cmd: 'update_profile' }, { token, body });
+    return this.user_service.send({ cmd: 'update_profile' }, { token, body });
   }
 
   deleteOneUser(token: string, params) {
-    this.user_service.send({ cmd: 'delete_user' }, { token, params });
+    return this.user_service.send({ cmd: 'delete_user' }, { token, params });
   }
 }
