@@ -38,10 +38,11 @@ export class UsersService extends BaseServiceAbstract<User> {
   }
 
   async getProfile(user_id: string) {
-    const user = this.users_repository.findOneById(user_id, {
+    const user = await this.users_repository.findOneById(user_id, {
       path: "role",
       transform: (role: Role) => role?.name,
     });
+    console.log("🚀 ~ UsersService ~ getProfile ~ user:", user)
     this.gateway_service.emit({ cmd: "response" }, user);
   }
 
@@ -67,7 +68,7 @@ export class UsersService extends BaseServiceAbstract<User> {
   }
 
   async getAll() {
-    const users = this.users_repository.findAll(
+    const users = await this.users_repository.findAll(
       {},
       {},
       {
