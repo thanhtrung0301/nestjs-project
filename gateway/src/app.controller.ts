@@ -65,7 +65,7 @@ export class AppController {
     const reqid = Date.now();
     this.connection[reqid] = res;
 
-    return this.appService.updateUserProfile({ token: req.token, reqid, body });
+    this.appService.updateUserProfile({ token: req.token, reqid, body });
   }
 
   @UseGuards(TokenGuard)
@@ -74,7 +74,7 @@ export class AppController {
     const reqid = Date.now();
     this.connection[reqid] = res;
 
-    return this.appService.deleteOneUser({
+    this.appService.deleteOneUser({
       token: req.token,
       reqid,
       params: params?.id,
