@@ -24,24 +24,24 @@ export class AppController {
 
   @Post('auth/login')
   login(@Body() loginDto: LoginDto) {
-    return this.appService.login(loginDto);
+    this.appService.login(loginDto);
   }
 
   @Post('auth/register')
   register(@Body() registerDto: RegisterDto) {
-    return this.appService.register(registerDto);
+    this.appService.register(registerDto);
   }
 
   @UseGuards(TokenGuard)
   @Get('user')
   getAll(@Request() req) {
-    return this.appService.getAllUser(req.token);
+    this.appService.getAllUser(req.token);
   }
 
   @UseGuards(TokenGuard)
   @Get('user/profile')
   async getProfile(@Request() req) {
-    return this.appService.getUserProfile(req.token);
+    this.appService.getUserProfile(req.token);
   }
 
   @UseGuards(TokenGuard)
