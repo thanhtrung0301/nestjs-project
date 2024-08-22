@@ -18,19 +18,24 @@ export class AppService {
     this.auth_service.emit({ cmd: 'register' }, registerDto);
   }
 
-  getUserProfile(data: { token: string; reqid: number }) {
+  getUserProfile(data: { token: string; reqid: number; client_id?: string; }) {
     this.user_service.emit({ cmd: 'get_profile' }, data);
   }
 
-  getAllUser(data: { token: string; reqid: number }) {
+  getAllUser(data: { token: string; reqid: number; client_id?: string; }) {
     this.user_service.emit({ cmd: 'get_all' }, data);
   }
 
-  updateUserProfile(data: { token: string; reqid?: number; body: any }) {
+  updateUserProfile(data: { token: string; reqid?: number; client_id?: string; body: any }) {
     this.user_service.emit({ cmd: 'update_profile' }, data);
   }
 
-  deleteOneUser(data: { token: string; reqid?: number; params: any }) {
+  deleteOneUser(data: {
+    token: string;
+    reqid?: number;
+    client_id?: string;
+    params: any;
+  }) {
     this.user_service.emit({ cmd: 'delete_user' }, data);
   }
 }

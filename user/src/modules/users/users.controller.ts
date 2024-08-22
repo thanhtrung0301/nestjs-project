@@ -35,7 +35,7 @@ export class UsersController {
   @CacheTTL(30) // override TTL to 30 seconds
   @Roles(USER_ROLE.ADMIN)
   async getAll(@Payload() data) {
-    return this.users_service.getAll(data?.reqid);
+    return this.users_service.getAll(data?.reqid, data?.client_id);
   }
 
   @MessagePattern({ cmd: "get_profile" })
@@ -50,8 +50,8 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @Patch("profile")
   async updateProfile(@Payload() data) {
-    const { user, reqid, body } = data;
-    return this.users_service.updateProfile(user?._id, reqid, body);
+    const { user, reqid, client_id, body } = data;
+    return this.users_service.updateProfile(user?._id, reqid, client_id, body);
   }
 
   @MessagePattern({ cmd: "delete_user" })
@@ -59,8 +59,8 @@ export class UsersController {
   @Delete(":id")
   @Roles(USER_ROLE.ADMIN)
   async deleteOne(@Payload() data) {
-    const { params, reqid } = data;
-    return this.users_service.deleteOne(params, reqid);
+    const { params, reqid, client_id } = data;
+    return this.users_service.deleteOne(params, reqid, client_id);
   }
 
   @MessagePattern({ cmd: "get_one" })

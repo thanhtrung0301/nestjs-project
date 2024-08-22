@@ -45,13 +45,14 @@ export class UsersService extends BaseServiceAbstract<User> {
 
     this.gateway_service.emit(
       { cmd: "response" },
-      { response: user, reqid: data?.reqid }
+      { response: user, reqid: data?.reqid, client_id: data?.client_id }
     );
   }
 
   async updateProfile(
     user_id: string,
     reqid: number,
+    client_id: string,
     update_dto: UpdateUserDto
   ) {
     let toUpdate = await this.users_repository.findOneById(user_id);
@@ -62,11 +63,11 @@ export class UsersService extends BaseServiceAbstract<User> {
 
     this.gateway_service.emit(
       { cmd: "response" },
-      { response: updated, reqid }
+      { response: updated, reqid, client_id }
     );
   }
 
-  async deleteOne(user_id: string, reqid: number) {
+  async deleteOne(user_id: string, reqid: number, client_id: string) {
     await this.users_repository.permanentlyDelete(user_id);
     this.gateway_service.emit(
       { cmd: "response" },
@@ -74,11 +75,12 @@ export class UsersService extends BaseServiceAbstract<User> {
         status: HttpStatus.OK,
         message: "Deleted successfully !",
         reqid,
+        client_id,
       }
     );
   }
 
-  async getAll(reqid: number) {
+  async getAll(reqid: number, client_id: string) {
     const users = await this.users_repository.findAll(
       {},
       {},
@@ -87,6 +89,9 @@ export class UsersService extends BaseServiceAbstract<User> {
         transform: (role: Role) => role?.name,
       }
     );
-    this.gateway_service.emit({ cmd: "response" }, { response: users, reqid });
+    this.gateway_service.emit(
+      { cmd: "response" },
+      { response: users, reqid, client_id }
+    );
   }
 }

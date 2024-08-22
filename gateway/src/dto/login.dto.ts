@@ -12,4 +12,7 @@ export class LoginDto {
 
   @IsOptional()
   reqid: number;
+
+  @IsOptional()
+  client_id: string;
 }

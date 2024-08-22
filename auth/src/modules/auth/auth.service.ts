@@ -45,6 +45,7 @@ export class AuthService {
             status: HttpStatus.CONFLICT,
             message: "Email already existed!!",
             reqid: register_dto.reqid,
+            client_id: register_dto.client_id,
           }
         );
       }
@@ -68,6 +69,7 @@ export class AuthService {
           status: HttpStatus.CREATED,
           message: "Register successfully !",
           reqid: register_dto.reqid,
+          client_id: register_dto.client_id,
         }
       );
     } catch (error) {
@@ -78,7 +80,7 @@ export class AuthService {
   async login(login_dto: LoginDto) {
     try {
       this.logger.verbose(login_dto);
-      const { email, password, reqid } = login_dto;
+      const { email, password, reqid, client_id } = login_dto;
 
       // Kiem tra tai khoan co ton tai khong
       const user = await firstValueFrom(
@@ -98,6 +100,7 @@ export class AuthService {
             status: HttpStatus.UNAUTHORIZED,
             message: "Wrong credential",
             reqid,
+            client_id,
           }
         );
       }
@@ -111,6 +114,7 @@ export class AuthService {
             status: HttpStatus.UNAUTHORIZED,
             message: "Wrong credential",
             reqid,
+            client_id,
           }
         );
       }
@@ -120,12 +124,12 @@ export class AuthService {
         { _id: user._id, role: user.role.name },
         { expiresIn: "48h" }
       );
-      console.log("🚀 ~ AuthService ~ login ~ accessToken:", accessToken);
 
       this.gateway_service.emit(
         { cmd: "response" },
         {
           reqid,
+          client_id,
           status: HttpStatus.OK,
           token: accessToken,
           message: "Login successfully !",

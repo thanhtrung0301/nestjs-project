@@ -32,5 +32,8 @@ export class RegisterDto {
 
 
 	@IsOptional()
-	reqid: number;
+  reqid: number;
+
+  @IsOptional()
+  client_id: string;
 }

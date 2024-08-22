@@ -89,10 +89,10 @@ export class AppController {
   @EventPattern({ cmd: 'response' })
   async responseClient(@Payload() data) {
     console.log('🚀 ~ AppController ~ responseClient ~ data:', data);
-    const { client, reqid, ...responseData } = data;
+    const { client_id, reqid, ...responseData } = data;
 
-    if (!reqid) {
-      this.eventsGateway.sendToClient(responseData);
+    if (client_id) {
+      this.eventsGateway.sendToClient(client_id, responseData);
     } else {
       const res = this.connection[reqid];
 
