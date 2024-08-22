@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Client</title>
+    <style>
+        body {
+            margin-inline: 20px;
+        }
+        #statusIndicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            background-color: red;
+        }
+        #messagesList {
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ccc;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            list-style: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Client</h1>
+
+    <label for="wsUrlInput">WebSocket URL:</label>
+    <input type="text" id="wsUrlInput" placeholder="ws://localhost:3000" value="ws://localhost:3000">
+    <br><br>
+
+    <span>Connection Status:</span> <span id="statusIndicator"></span>
+    <br><br>
+
+    <button id="connectBtn">Connect</button>
+    <button id="disconnectBtn" disabled>Disconnect</button>
+    <br><br>
+
+    <label for="messageInput">JSON Data:</label>
+    <textarea id="messageInput" placeholder='{"cmdtype": "login"}' rows="4" cols="50"></textarea>
+    <br><br>
+
+    <button id="sendBtn" disabled>Send Message</button>
+    <ul id="messagesList"></ul>
+
+    <script>
+        let socket;
+        const wsUrlInput = document.getElementById('wsUrlInput');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const sendBtn = document.getElementById('sendBtn');
+        const messageInput = document.getElementById('messageInput');
+        const messagesList = document.getElementById('messagesList');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const receivedData = document.getElementById('receivedData');
+
+        function updateStatusIndicator(isConnected) {
+            if (isConnected) {
+                statusIndicator.style.backgroundColor = 'green';
+            } else {
+                statusIndicator.style.backgroundColor = 'red'; 
+            }
+        }
+
+        connectBtn.addEventListener('click', () => {
+            const wsUrl = wsUrlInput.value;
+            socket = new WebSocket(wsUrl);
+
+            socket.addEventListener('open', function (event) {
+                console.log('Connected to WebSocket server at', wsUrl);
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                sendBtn.disabled = false;
+                updateStatusIndicator(true); 
+            });
+
+            socket.addEventListener('message', function (event) {
+                console.log('Message from server: ', event.data);
+                const li = document.createElement('li');
+                li.textContent = event.data;
+                messagesList.appendChild(li);
+            });
+
+            socket.addEventListener('close', function (event) {
+                console.log('Disconnected from WebSocket server');
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                sendBtn.disabled = true;
+                updateStatusIndicator(false);
+            });
+
+            socket.addEventListener('error', function (event) {
+                console.error('WebSocket error: ', event);
+                updateStatusIndicator(false);
+            });
+        });
+
+        disconnectBtn.addEventListener('click', () => {
+            if (socket) {
+                socket.close();
+            }
+        });
+
+        sendBtn.addEventListener('click', () => {
+            const message = messageInput.value.trim();
+            try {
+                const jsonMessage = JSON.parse(message);
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify(jsonMessage));
+                    messageInput.value = '';
+                }
+            } catch (error) {
+                alert('Invalid JSON format');
+                console.error('Error parsing JSON: ', error);
+            }
+        });
+    </script>
+</body>
+</html>
