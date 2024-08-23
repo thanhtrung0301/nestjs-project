@@ -18,7 +18,6 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import { TokenGuard } from './guards/token.guard';
-import { WebSocket } from 'ws'; // Import WebSocket
 import { EventsGateway } from './events/events.gateway';
 
 @Controller()

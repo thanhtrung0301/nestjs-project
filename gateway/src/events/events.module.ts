@@ -31,6 +31,6 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       },
     ]),
   ],
-  providers: [AppService, EventsGateway],
+  providers: [AppService],
 })
 export class EventsModule {}
