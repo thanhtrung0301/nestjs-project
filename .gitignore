@@ -15,6 +15,14 @@
 /auth/node_modules
 /auth/build
 
+/logger/dist
+/logger/node_modules
+/logger/build
+
+/telegram/dist
+/telegram/node_modules
+/telegram/build
+
 # Logs
 logs
 *.log
