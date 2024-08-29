@@ -85,6 +85,12 @@ export class AppController {
     });
   }
 
+  @Post('logger/telegram')
+  async logTelegram(@Body() body: { message: string }) {
+    this.appService.logTelegram(body);
+    return { success: true };
+  }
+
   @EventPattern({ cmd: 'response' })
   async responseClient(@Payload() data) {
     console.log('🚀 ~ AppController ~ responseClient ~ data:', data);

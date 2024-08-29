@@ -1,15 +1,15 @@
+import { LoggerModule } from "@modules/logger/logger.module";
 import { NestFactory } from "@nestjs/core";
 import { MicroserviceOptions, Transport } from "@nestjs/microservices";
-import { TelegramModule } from "@modules/telegram/telegram.module";
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-    TelegramModule,
+    LoggerModule,
     {
       transport: Transport.RMQ,
       options: {
         urls: ["amqp://localhost:5672"],
-        queue: "telegram_queue",
+        queue: "logger_queue",
         queueOptions: {
           durable: false,
         },

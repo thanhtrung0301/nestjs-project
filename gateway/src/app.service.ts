@@ -8,6 +8,7 @@ export class AppService {
   constructor(
     @Inject('AUTH_SERVICE') private readonly auth_service: ClientProxy,
     @Inject('USER_SERVICE') private readonly user_service: ClientProxy,
+    @Inject('LOGGER_SERVICE') private readonly logger_service: ClientProxy,
   ) {}
 
   login(loginDto: LoginDto) {
@@ -18,15 +19,20 @@ export class AppService {
     this.auth_service.emit({ cmd: 'register' }, registerDto);
   }
 
-  getUserProfile(data: { token: string; reqid: number; client_id?: string; }) {
+  getUserProfile(data: { token: string; reqid: number; client_id?: string }) {
     this.user_service.emit({ cmd: 'get_profile' }, data);
   }
 
-  getAllUser(data: { token: string; reqid: number; client_id?: string; }) {
+  getAllUser(data: { token: string; reqid: number; client_id?: string }) {
     this.user_service.emit({ cmd: 'get_all' }, data);
   }
 
-  updateUserProfile(data: { token: string; reqid?: number; client_id?: string; body: any }) {
+  updateUserProfile(data: {
+    token: string;
+    reqid?: number;
+    client_id?: string;
+    body: any;
+  }) {
     this.user_service.emit({ cmd: 'update_profile' }, data);
   }
 
@@ -37,5 +43,9 @@ export class AppService {
     params: any;
   }) {
     this.user_service.emit({ cmd: 'delete_user' }, data);
+  }
+
+  logTelegram(data: { message: string }) {
+    this.logger_service.emit({ cmd: 'telegram' }, data);
   }
 }
